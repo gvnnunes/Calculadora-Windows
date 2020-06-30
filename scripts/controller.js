@@ -16,6 +16,12 @@ class CalcController{
 
     }
 
+    clearEntry(){
+
+        
+
+    }
+
     calc(){
 
         
@@ -86,9 +92,9 @@ class CalcController{
         if (value == '←') {
 
             let last = this.getNumber();
-            let lastRemoved = String(last).substring(String(last).length, String(last).length -1);
+            let lastRemoved = String(last).substring(0, String(last).length -1);
             this.setLastPosition(lastRemoved);
-            this.setDisplay();
+            this.setDisplay(lastRemoved);
             return;
 
         }
@@ -151,6 +157,9 @@ class CalcController{
 
         switch(value){
 
+            case 'CE':
+                this.clearEntry();
+                break;
             case 'C':
                 this.clearAll();
                 break;
