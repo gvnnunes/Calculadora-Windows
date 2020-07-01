@@ -18,7 +18,27 @@ class CalcController{
 
     clearEntry(){
 
+        if(!isNaN(this.getLastPosition())){
+
+            this._operation.pop();
+            this.setDisplay("0");
+            
+        }
         
+
+    }
+
+    calcEqual(){
+
+        let last = this.getLastPosition();
+        
+        this._lastOperator = this.getOperator();
+        this._lastNumber = this.getNumber();
+        this.setLastPosition('(' + last + ')');            
+        let result = this.getResult();            
+        this._operation = [];
+        this.setDisplay(result);
+        this.pushOperation(result);
 
     }
 
@@ -27,11 +47,10 @@ class CalcController{
         
         if(this._lastOperator && this._lastNumber){
 
-            if (this._lastOperator == "=") {
+            if (this._lastOperator == "=" && this._operation.length < 3) {
 
                 let last = this.getOperator();
                 this.pushOperation('(' + this._lastNumber + ')');
-                console.log(this._operation);
                 let result = this.getResult();
                 this._operation = [];
                 this.setDisplay(result);
@@ -46,7 +65,7 @@ class CalcController{
                 this._lastNumber = "";           
 
             }
-            else{
+            else if(this._operation.length == 1){
 
                 this._operation.push(this._lastOperator, '(' + this._lastNumber + ')');
                 let result = this.getResult();
@@ -55,20 +74,18 @@ class CalcController{
                 this.pushOperation(result);
 
             }
+            else{
+
+                this.calcEqual();
+
+            }
 
             return;
         }   
 
         if(this._operation.length == 3){
 
-            let last = this.getLastPosition();
-            this._lastOperator = this.getOperator();
-            this._lastNumber = this.getNumber();
-            this.setLastPosition('(' + last + ')');
-            let result = this.getResult();            
-            this._operation = [];
-            this.setDisplay(result);
-            this.pushOperation(result);
+            this.calcEqual();
 
         }
         else if(this._operation.length > 3){
@@ -89,6 +106,104 @@ class CalcController{
 
     Operation(value){
         
+        if(value == '√'){
+
+            let last = this.getLastPosition();
+            
+            if(!isNaN(last)){
+
+                last = Math.sqrt(last);
+                this.setLastPosition(last);
+                this.setDisplay(last);
+                
+            }
+
+            return;
+        }
+
+        if(value == '¹/x'){
+
+            let last = this.getLastPosition();
+            
+            if(!isNaN(last)){
+
+                last = 1 / last;
+                this.setLastPosition(last);
+                this.setDisplay(last);
+                
+            }
+
+            return;
+        }
+
+        if(value == 'x²'){
+
+            let last = this.getLastPosition();
+            
+            if(!isNaN(last)){
+
+                last = last * last;
+                this.setLastPosition(last);
+                this.setDisplay(last);
+                
+            }
+
+            return;
+        }
+
+        if(value == '%'){
+
+            let last = this.getLastPosition();
+
+            if(!isNaN(last)){
+
+                last = last / 100;                
+                this.setLastPosition(last);
+                let result = this.getResult();
+                this._operation = [];
+                this.pushOperation(result);
+                this.setDisplay(result);
+
+            }
+
+            return;
+        }
+
+        if(value == '.'){
+            
+            let last = this.getLastPosition();
+
+            if(this._operation.length == 0){
+
+                this.pushOperation("0.");
+                this.setDisplay("0.");
+                return;
+
+            }
+            else if(this.getLastPosition() == 0){
+
+                this.setLastPosition("0.");
+                this.setDisplay("0.");
+                return;
+
+            }
+
+            if(!isNaN(last)){
+
+                if(String(last).indexOf('.') == -1){
+                    
+                    let newValue = last.toString() + ".";                    
+                    this.setLastPosition(newValue);
+                    this.setDisplay(newValue);
+                    return;
+
+                }                
+
+            }            
+
+            return;
+        }
+
         if (value == '←') {
 
             let last = this.getNumber();
@@ -115,7 +230,7 @@ class CalcController{
                 last = eval(last + "*-1");
                 this.setLastPosition(last);
                 this.setDisplay(last);
-                console.log(this._operation);
+
             }
 
             return;
@@ -130,22 +245,20 @@ class CalcController{
             }
             else{
                 this.pushOperation(value);                
-                this.calc();              
-                console.log(this._operation);  
+                this.calc();
+
             }   
         }        
         else if(isNaN(value) == false){
             //Número
 
             if(isNaN(this.getLastPosition())){
-                this.pushOperation(parseInt(value));
-                console.log(this._operation);
+                this.pushOperation(parseInt(value));         
                 this.setDisplay(value);
             }
             else{
                 let last = this.getLastPosition().toString() + value.toString();
-                this.setLastPosition(parseInt(last));
-                console.log(this._operation);
+                this.setLastPosition(parseFloat(last));
                 this.setDisplay(last);                
             }
 
@@ -163,6 +276,9 @@ class CalcController{
             case 'C':
                 this.clearAll();
                 break;
+            case ',':
+                this.Operation('.');
+                break;
             case '±':
                 this.Operation('-1');                
                 break;
@@ -172,6 +288,10 @@ class CalcController{
             case '÷':
                 this.Operation('/');
                 break;
+            case '√':
+            case '¹/x':
+            case 'x²':
+            case '%':
             case '←':
             case '=':
             case '+':
