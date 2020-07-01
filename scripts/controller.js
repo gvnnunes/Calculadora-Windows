@@ -241,7 +241,6 @@ class CalcController{
             if (isNaN(this.getLastPosition())){
                 //Altera o operador
                 this.setLastPosition(value);
-                console.log(this._operation);
             }
             else{
                 this.pushOperation(value);                
